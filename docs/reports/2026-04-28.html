@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>週次方針レポ 2026-04-28</title>
+<link rel="stylesheet" href="../style.css">
+<style>
+.report { background:#fff; padding:24px; border-radius:12px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.06); }
+.report h1, .report h2, .report h3 { color: #2a3a55; }
+.report h1 { font-size: 22px; }
+.report h2 { font-size: 17px; margin-top: 22px; padding-bottom: 6px; border-bottom: 2px solid #ece4d2;}
+.report h3 { font-size: 14px; margin-top: 16px; }
+.report table { font-size: 13px; }
+.report code { background: #f7f3ed; padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body><div class="wrap">
+<p><a href="../">← ダッシュボードに戻る</a></p>
+<div class="report">
+<h1>📝 週次方針レポ 2026-04-28</h1>
+<h2>:warning: 異常検出：S8 に重大なデータ破損</h2>
+
+<p>**ooi/S8 に 2,504件の異常ベットを検出。** max_stake が `2.44×10⁹⁶` — 明らかにオーバーフローまたはログ破損。2025-05-02 以降のS8データは全て汚染されている。以下の分析では **S8の正常220件（〜2025-05-02まで）のみ** を採用しているが、パイプラインの即時修正が必要。</p>
+
+<p>---</p>
+
+<h2>1. 全体KPI — 見かけの数字に騙されるな</h2>
+
+<table>
+<tr><th>指標</th><th>全体</th><th>S8除外</th></tr>
+<tr><td>ベット数</td><td>15,379</td><td>15,159</td></tr>
+<tr><td>投下額</td><td>2.18億</td><td>1,076万</td></tr>
+<tr><td>損益</td><td>+9,839万</td><td>+155万</td></tr>
+<tr><td>ROI</td><td>45.19%</td><td>**14.4%**</td></tr>
+<tr><td>稼働日数</td><td>98日</td><td>—</td></tr>
+</table>
+
+<p>**結論：ポートフォリオ利益の98.4%がS8の1戦略に集中。** S8は2週間・220件・平均ステーク94万/件の超高額運用であり、これを「ポートフォリオ全体のROI」として語るのは危険。S8を除いた実力値はROI約14%、これが現在の地力。</p>
+
+<p>---</p>
+
+<h2>2. 戦略ランキング（推奨付き）</h2>
+
+<table>
+<tr><th>戦略</th><th>PJ</th><th>件数</th><th>ROI%</th><th>勝率%</th><th>期間</th><th>判定</th></tr>
+<tr><td>**S5**</td><td>ooi</td><td>1,027</td><td>**96.4**</td><td>4.4</td><td>12ヶ月</td><td>**増やせ**</td></tr>
+<tr><td>S1</td><td>ooi</td><td>1,027</td><td>64.5</td><td>45.0</td><td>12ヶ月</td><td>**増やせ**</td></tr>
+<tr><td>S4</td><td>ooi</td><td>2,514</td><td>53.6</td><td>46.8</td><td>12ヶ月</td><td>**増やせ**</td></tr>
+<tr><td>S8</td><td>ooi</td><td>220</td><td>46.8</td><td>42.3</td><td>2週間</td><td>保留（後述）</td></tr>
+<tr><td>S2</td><td>ooi</td><td>1,027</td><td>28.5</td><td>65.4</td><td>12ヶ月</td><td>維持</td></tr>
+<tr><td>S6</td><td>ooi</td><td>4,102</td><td>22.3</td><td>1.8</td><td>12ヶ月</td><td>維持</td></tr>
+<tr><td>S4_delayed</td><td>autorace</td><td>344</td><td>12.0</td><td>40.7</td><td>**1日**</td><td>サンプル不足</td></tr>
+<tr><td>S3</td><td>ooi</td><td>5,058</td><td>10.7</td><td>8.6</td><td>12ヶ月</td><td>縮小検討</td></tr>
+<tr><td>S7</td><td>ooi</td><td>38</td><td>**-70.6**</td><td>5.3</td><td>**1日**</td><td>**止めろ**</td></tr>
+<tr><td>crypto</td><td>crypto</td><td>8</td><td>0.0</td><td>—</td><td>9日</td><td>サンプル不足</td></tr>
+</table>
+
+<p>---</p>
+
+<h2>3. 方針提案</h2>
+
+<h3>S5を主力に昇格させろ</h3>
+<p>ROI 96%・12ヶ月・1,027件。勝率4.4%は一見危険だが、1年間で倍近いリターンを出し続けている穴狙い型の典型。件数も統計的に十分。**ステークを段階的に引き上げて、S8に頼らない利益柱に育てろ。**</p>
+
+<h3>S1・S4は安定枠として増額</h3>
+<p>両方とも12ヶ月稼働・1,000件超・ROI 50%以上・勝率45%前後。ボラティリティが低く回収率も安定している。**現在のステーク（100円/件）が小さすぎる。S5と合わせてこの3本を柱にしろ。**</p>
+
+<h3>S8は「再開不可」扱いにしろ</h3>
+<p>2週間で9,684万の利益は魅力的だが、データ破損が2025-05-02以降ずっと放置されている点が致命的。ログが信用できない戦略に大金を張れない。**異常データの原因究明とパイプライン修正が完了するまで凍結。** 修正後に小額で再検証してからスケールを判断しろ。</p>
+
+<h3>S7は即時停止</h3>
+<p>38件・1日・ROI -70%。サンプル不足以前に、回収率29%は構造的に破綻している。**これ以上検証する価値なし。止めろ。**</p>
+
+<h3>S3は費用対効果が悪い — 縮小か改良</h3>
+<p>5,058件とポートフォリオ最多のベット数を消費してROI 10.65%。勝率8.6%で薄利多売型だが、同じ穴狙い型ならS5やS6の方が効率が良い。**件数を半分に絞るか、フィルタ条件を厳格化してROI改善を図れ。**</p>
+
+<h3>s4_autorace / crypto は判断保留</h3>
+<ul>
+<li>**s4_autorace（S4_delayed）**：344件・ROI 12%だが稼働たった1日。最低2週間・1,000件以上まで回してから評価。</li>
+<li>**crypto**：8件・payout 0。まだ何も起きていない。1ヶ月は寝かせろ。</li>
+</ul>
+
+<p>---</p>
+
+<h2>4. 最優先アクション</h2>
+
+<p>1. **S8の異常データパイプラインを今週中に修正** — 1年近く放置は論外</p>
+<p>2. **S5/S1/S4のステークを10倍に引き上げるテスト開始** — 現状100円/件では利益が出ても実益にならない</p>
+<p>3. **S7を停止、S3のフィルタ見直し着手**</p>
+</div>
+</div></body></html>
