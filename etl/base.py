@@ -40,6 +40,34 @@ CREATE TABLE IF NOT EXISTS etl_runs (
     rows_added INTEGER NOT NULL,
     note      TEXT
 );
+
+-- forward_bets: live予想で打った（=未来発走の）ペーパーベットを時系列で記録
+-- bets テーブルが「過去レースに後方検証ロジックを当てた結果」なのに対し、
+-- こちらは「未来レースに賭ける→数日後に結果が確定」する forward テスト用。
+-- forward.py から直接 upsert / settle される（ETL は経由しない）。
+CREATE TABLE IF NOT EXISTS forward_bets (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    pj            TEXT    NOT NULL,
+    bet_date      TEXT    NOT NULL,         -- YYYY-MM-DD（発走日）
+    race_id       TEXT    NOT NULL,
+    strategy      TEXT    NOT NULL,         -- 'S5_TRIO_BOX3' 等
+    model_version TEXT,                     -- '045_v1' 等
+    bet_type      TEXT    NOT NULL,         -- '三連複' / '単勝' 等
+    combo         TEXT    NOT NULL,         -- '2-3-13' 等
+    stake         INTEGER NOT NULL,
+    placed_at     TEXT    NOT NULL,         -- 賭けた瞬間のISOタイムスタンプ
+    -- 結果系（発走後に埋める）
+    settled       INTEGER NOT NULL DEFAULT 0,
+    actual_top3   TEXT,                     -- '11-13-6' 等
+    payout        INTEGER,                  -- 払戻（円）
+    pnl           INTEGER,                  -- payout - stake
+    settled_at    TEXT,
+    note          TEXT,
+    UNIQUE(pj, race_id, strategy, combo)
+);
+CREATE INDEX IF NOT EXISTS idx_fwd_pj_date  ON forward_bets(pj, bet_date);
+CREATE INDEX IF NOT EXISTS idx_fwd_strategy ON forward_bets(strategy);
+CREATE INDEX IF NOT EXISTS idx_fwd_settled  ON forward_bets(settled);
 """
 
 

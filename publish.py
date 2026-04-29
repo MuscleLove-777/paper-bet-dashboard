@@ -68,11 +68,176 @@ def equity_svg(daily: list[dict], width: int = 320, height: int = 90) -> str:
     )
 
 
+def render_forward_section() -> str:
+    """フォワード検証累積成績セクション。
+    収入額(絶対金額)は画面表示しない方針 → 比率と件数のみ。
+    """
+    fkpi = analyze.forward_overall_kpi()
+    fstrats = analyze.forward_by_strategy()
+    fpjs = analyze.forward_by_pj()
+    recent = analyze.forward_recent(limit=20)
+
+    # データなし
+    if fkpi["bets_total"] == 0 and fkpi["unsettled_n"] == 0:
+        return f'''
+        <section class="card forward">
+          <h2>🚀 フォワード検証累積成績</h2>
+          <p class="hint">live予想機能で打った forward bet はまだ記録されていません。
+          <code>python forward.py record ...</code> で記録開始。</p>
+        </section>
+        '''
+
+    # KPIブロック（金額は非表示、ROI/件数/的中率/未確定数のみ）
+    overall_cls = "pos" if fkpi["roi_pct"] >= 0 else "neg"
+    kpi_block = f'''
+    <div class="kpi-grid">
+      <div class="kpi-cell">
+        <div class="label">累積件数(確定)</div>
+        <div class="big">{fkpi["bets_total"]:,}</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="label">未確定</div>
+        <div class="big">{fkpi["unsettled_n"]:,}</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="label">forward ROI</div>
+        <div class="big {overall_cls}">{fmt_pct(fkpi["roi_pct"])}</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="label">的中率</div>
+        <div class="big">{fkpi["win_rate_pct"]:.1f}%</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="label">アクティブ日数</div>
+        <div class="num">{fkpi["active_days"]}</div>
+      </div>
+    </div>
+    '''
+
+    # 戦略別小計＋backtest 比較
+    strat_rows = ""
+    for s in fstrats:
+        roi_cls = "pos" if s["roi_pct"] >= 0 else "neg"
+        bt_pct = s["backtest_roi_pct"]
+        if bt_pct is None:
+            delta_html = '<span class="dim">backtest n/a</span>'
+        else:
+            diff = s["roi_pct"] - bt_pct
+            diff_cls = "pos" if diff >= 0 else "neg"
+            delta_html = (
+                f'<span class="dim">backtest {fmt_pct(bt_pct)} '
+                f'(n={s["backtest_n"]:,})</span> '
+                f'<strong class="{diff_cls}">Δ{fmt_pct(diff)}</strong>'
+            )
+        strat_rows += f'''
+        <tr>
+          <td><span class="pj-tag">{html.escape(s["pj"])}</span></td>
+          <td><strong>{html.escape(s["strategy"])}</strong></td>
+          <td class="num">{s["bets_n"]:,}</td>
+          <td class="num">{s["win_rate_pct"]:.1f}%</td>
+          <td class="num {roi_cls}">{fmt_pct(s["roi_pct"])}</td>
+          <td>{delta_html}</td>
+        </tr>
+        '''
+    strat_table = ""
+    if strat_rows:
+        strat_table = f'''
+        <h3 class="sub">戦略別（forward 確定分）</h3>
+        <table>
+          <thead><tr>
+            <th>PJ</th><th>戦略</th><th>件数</th><th>的中率</th>
+            <th>forward ROI</th><th>backtest との差分</th>
+          </tr></thead>
+          <tbody>{strat_rows}</tbody>
+        </table>
+        '''
+
+    # PJ別小計
+    pj_rows = ""
+    for p in fpjs:
+        roi_cls = "pos" if p["roi_pct"] >= 0 else "neg"
+        pj_rows += f'''
+        <tr>
+          <td><span class="pj-tag">{html.escape(p["pj"])}</span></td>
+          <td class="num">{p["bets_n"]:,}</td>
+          <td class="num">{p["strategies"]}</td>
+          <td class="num {roi_cls}">{fmt_pct(p["roi_pct"])}</td>
+          <td><span class="dim">{p["first_date"]} 〜 {p["last_date"]}</span></td>
+        </tr>
+        '''
+    pj_table = ""
+    if pj_rows:
+        pj_table = f'''
+        <h3 class="sub">PJ別（forward 確定分）</h3>
+        <table>
+          <thead><tr>
+            <th>PJ</th><th>件数</th><th>戦略数</th><th>forward ROI</th><th>期間</th>
+          </tr></thead>
+          <tbody>{pj_rows}</tbody>
+        </table>
+        '''
+
+    # 直近20件明細
+    rec_rows = ""
+    for r in recent:
+        if not r["settled"]:
+            cls = "unsettled"
+            payout_disp = '<span class="badge">未確定</span>'
+            pnl_disp = "-"
+            actual_disp = r["actual_top3"] or "-"
+        else:
+            cls = ""
+            pnl = r["pnl"] or 0
+            cls_pnl = "pos" if pnl >= 0 else "neg"
+            payout_disp = f'{int(r["payout"] or 0):,}'
+            pnl_disp = f'<span class="{cls_pnl}">{pnl:+,}</span>'
+            actual_disp = r["actual_top3"] or "-"
+        rec_rows += f'''
+        <tr class="{cls}">
+          <td>{html.escape(r["bet_date"] or "-")}</td>
+          <td><span class="pj-tag">{html.escape(r["pj"])}</span></td>
+          <td>{html.escape(r["strategy"])}</td>
+          <td>{html.escape(r["bet_type"] or "-")}</td>
+          <td>{html.escape(r["combo"] or "-")}</td>
+          <td class="num">{int(r["stake"] or 0):,}</td>
+          <td>{html.escape(actual_disp)}</td>
+          <td class="num">{payout_disp}</td>
+          <td class="num">{pnl_disp}</td>
+        </tr>
+        '''
+    recent_table = f'''
+    <h3 class="sub">直近 {len(recent)} 件</h3>
+    <table>
+      <thead><tr>
+        <th>発走日</th><th>PJ</th><th>戦略</th><th>券種</th><th>combo</th>
+        <th>stake</th><th>actual top3</th><th>payout</th><th>PnL</th>
+      </tr></thead>
+      <tbody>{rec_rows}</tbody>
+    </table>
+    <p class="hint">未確定行は <code>forward.py settle</code> で結果確定後に集計対象。
+    backtest ROI とのΔが「過学習度合い」の目安。3ヶ月で N=30〜50 溜まったら実弾GO/NOGO判断。</p>
+    '''
+
+    return f'''
+    <section class="card forward">
+      <h2>🚀 フォワード検証累積成績</h2>
+      <p class="hint">live予想で打った（=未来発走の）ペーパーベットの累積成績。
+      bets テーブル（=後方検証）とは独立集計。確定分(<code>settled=1</code>)のみが ROI/件数に反映されます。
+      金額の絶対値は内部DBにのみ保持し、画面では比率/件数のみ表示。</p>
+      {kpi_block}
+      {strat_table}
+      {pj_table}
+      {recent_table}
+    </section>
+    '''
+
+
 def render_dashboard(weekly_reports: list[Path]) -> str:
     kpi = analyze.overall_kpi()
     pjs = analyze.per_pj_summary()
     strats = analyze.summary_by_strategy()
     anoms = analyze.anomalies()
+    forward_html = render_forward_section()
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     # PJ別カード
@@ -211,6 +376,8 @@ def render_dashboard(weekly_reports: list[Path]) -> str:
     <p class="hint">※ 1ベット1000万超のstakeは異常として除外集計</p>
   </section>
 
+  {forward_html}
+
   {weekly_html}
 
   <footer>
@@ -282,6 +449,21 @@ td.chart { width: 320px; }
 .reports a { color: #2a3a55; text-decoration: none; font-weight: 600; }
 .reports a:hover { text-decoration: underline; }
 footer { text-align: center; font-size: 11px; color: #8a7a64; margin-top: 24px; }
+.card.forward {
+  border-left: 4px solid #2a3a55;
+  background: linear-gradient(180deg, #fff 0%, #f3f6fb 100%);
+}
+.card.forward h2 { color: #2a3a55; }
+.card.forward h3.sub {
+  font-size: 13px; color: #44607f; margin: 18px 0 6px;
+  padding-bottom: 4px; border-bottom: 1px dashed #c8d1e0;
+}
+.card.forward .kpi-grid { margin-bottom: 8px; }
+tr.unsettled td { background: #fff8d6; }
+.badge {
+  display: inline-block; background: #d97a1a; color: #fff;
+  padding: 1px 7px; border-radius: 99px; font-size: 11px; font-weight: 700;
+}
 @media (max-width: 700px) {
   td.chart { display: none; }
 }

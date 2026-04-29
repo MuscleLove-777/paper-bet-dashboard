@@ -11,7 +11,7 @@
 <div class="wrap">
   <header>
     <h1>📊 ペーパーベット 横断ダッシュボード</h1>
-    <div class="updated">最終更新: 2026-04-29 11:31</div>
+    <div class="updated">最終更新: 2026-04-29 20:25</div>
   </header>
 
   <section class="kpi card">
@@ -194,6 +194,99 @@
     </table>
     <p class="hint">※ 1ベット1000万超のstakeは異常として除外集計</p>
   </section>
+
+  
+    <section class="card forward">
+      <h2>🚀 フォワード検証累積成績</h2>
+      <p class="hint">live予想で打った（=未来発走の）ペーパーベットの累積成績。
+      bets テーブル（=後方検証）とは独立集計。確定分(<code>settled=1</code>)のみが ROI/件数に反映されます。
+      金額の絶対値は内部DBにのみ保持し、画面では比率/件数のみ表示。</p>
+      
+    <div class="kpi-grid">
+      <div class="kpi-cell">
+        <div class="label">累積件数(確定)</div>
+        <div class="big">1</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="label">未確定</div>
+        <div class="big">0</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="label">forward ROI</div>
+        <div class="big neg">-100.00%</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="label">的中率</div>
+        <div class="big">0.0%</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="label">アクティブ日数</div>
+        <div class="num">1</div>
+      </div>
+    </div>
+    
+      
+        <h3 class="sub">戦略別（forward 確定分）</h3>
+        <table>
+          <thead><tr>
+            <th>PJ</th><th>戦略</th><th>件数</th><th>的中率</th>
+            <th>forward ROI</th><th>backtest との差分</th>
+          </tr></thead>
+          <tbody>
+        <tr>
+          <td><span class="pj-tag">ooi</span></td>
+          <td><strong>S5_TRIO_BOX3</strong></td>
+          <td class="num">1</td>
+          <td class="num">0.0%</td>
+          <td class="num neg">-100.00%</td>
+          <td><span class="dim">backtest n/a</span></td>
+        </tr>
+        </tbody>
+        </table>
+        
+      
+        <h3 class="sub">PJ別（forward 確定分）</h3>
+        <table>
+          <thead><tr>
+            <th>PJ</th><th>件数</th><th>戦略数</th><th>forward ROI</th><th>期間</th>
+          </tr></thead>
+          <tbody>
+        <tr>
+          <td><span class="pj-tag">ooi</span></td>
+          <td class="num">1</td>
+          <td class="num">1</td>
+          <td class="num neg">-100.00%</td>
+          <td><span class="dim">2026-04-29 〜 2026-04-29</span></td>
+        </tr>
+        </tbody>
+        </table>
+        
+      
+    <h3 class="sub">直近 1 件</h3>
+    <table>
+      <thead><tr>
+        <th>発走日</th><th>PJ</th><th>戦略</th><th>券種</th><th>combo</th>
+        <th>stake</th><th>actual top3</th><th>payout</th><th>PnL</th>
+      </tr></thead>
+      <tbody>
+        <tr class="">
+          <td>2026-04-29</td>
+          <td><span class="pj-tag">ooi</span></td>
+          <td>S5_TRIO_BOX3</td>
+          <td>三連複</td>
+          <td>2-3-13</td>
+          <td class="num">100</td>
+          <td>11-13-6</td>
+          <td class="num">0</td>
+          <td class="num"><span class="neg">-100</span></td>
+        </tr>
+        </tbody>
+    </table>
+    <p class="hint">未確定行は <code>forward.py settle</code> で結果確定後に集計対象。
+    backtest ROI とのΔが「過学習度合い」の目安。3ヶ月で N=30〜50 溜まったら実弾GO/NOGO判断。</p>
+    
+    </section>
+    
 
   
         <section class="card">

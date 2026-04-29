@@ -1,5 +1,6 @@
 __pycache__/
 *.pyc
 ledger.db
+ledger.db.bak_*
 .venv/
 .DS_Store

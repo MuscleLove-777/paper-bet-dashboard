@@ -171,6 +171,149 @@ def overall_kpi() -> dict:
     }
 
 
+# ===== forward_bets（前向き検証） =====
+# bets テーブルとは独立。settled=1 のみ集計（未確定はカウントから除外）。
+
+def forward_overall_kpi() -> dict:
+    """forward_bets の累積 KPI（確定分のみ）。"""
+    with connect() as con:
+        n, stake, payout, pnl, wins, days = con.execute(
+            """
+            SELECT COUNT(*), SUM(stake), SUM(payout), SUM(pnl),
+                   SUM(CASE WHEN pnl > 0 THEN 1 ELSE 0 END),
+                   COUNT(DISTINCT bet_date)
+              FROM forward_bets WHERE settled = 1
+            """
+        ).fetchone()
+        unsettled_n = con.execute(
+            "SELECT COUNT(*) FROM forward_bets WHERE settled = 0"
+        ).fetchone()[0]
+    n = n or 0
+    stake = stake or 0
+    return {
+        "bets_total": n,
+        "unsettled_n": unsettled_n,
+        "stake_total": stake,
+        "payout_total": payout or 0,
+        "pnl_total": pnl or 0,
+        "roi_pct": round(((pnl or 0) / stake * 100.0) if stake else 0, 2),
+        "win_rate_pct": round((wins / n * 100.0) if n else 0, 2),
+        "active_days": days or 0,
+    }
+
+
+def forward_by_strategy() -> list[dict]:
+    """戦略単位の forward 集計（確定分のみ）。bets 側の同戦略 ROI も並べて返す。"""
+    with connect() as con:
+        rows = con.execute(
+            """
+            SELECT pj, strategy,
+                   COUNT(*)                                  AS n,
+                   SUM(stake)                                AS stake,
+                   SUM(payout)                               AS payout,
+                   SUM(pnl)                                  AS pnl,
+                   SUM(CASE WHEN pnl > 0 THEN 1 ELSE 0 END)  AS wins,
+                   MIN(bet_date)                             AS first_date,
+                   MAX(bet_date)                             AS last_date
+              FROM forward_bets
+             WHERE settled = 1
+             GROUP BY pj, strategy
+             ORDER BY pj, strategy
+            """
+        ).fetchall()
+
+        # bets 側の各 (pj, strategy) ROI を引いて backtest 比較に使う
+        bt_rows = con.execute(
+            f"""
+            SELECT pj, strategy, SUM(stake), SUM(pnl), COUNT(*)
+              FROM bets WHERE {NORMAL_FILTER}
+             GROUP BY pj, strategy
+            """
+        ).fetchall()
+    bt_map = {}
+    for pj, st, s, p, n in bt_rows:
+        bt_map[(pj, st)] = {
+            "backtest_roi_pct": round(((p or 0) / s * 100.0) if s else 0, 2),
+            "backtest_n": n,
+        }
+
+    out = []
+    for r in rows:
+        pj, strat, n, stake, payout, pnl, wins, fd, ld = r
+        roi = (pnl / stake * 100.0) if stake else 0.0
+        bt = bt_map.get((pj, strat), {"backtest_roi_pct": None, "backtest_n": 0})
+        out.append({
+            "pj": pj,
+            "strategy": strat,
+            "bets_n": n,
+            "stake_total": stake or 0,
+            "payout_total": payout or 0,
+            "pnl_total": pnl or 0,
+            "roi_pct": round(roi, 2),
+            "win_rate_pct": round((wins / n * 100.0) if n else 0, 2),
+            "first_date": fd,
+            "last_date": ld,
+            "backtest_roi_pct": bt["backtest_roi_pct"],
+            "backtest_n": bt["backtest_n"],
+        })
+    return out
+
+
+def forward_by_pj() -> list[dict]:
+    """PJ単位の forward 集計（確定分のみ）。"""
+    with connect() as con:
+        rows = con.execute(
+            """
+            SELECT pj,
+                   COUNT(*)        AS n,
+                   SUM(stake)      AS stake,
+                   SUM(payout)     AS payout,
+                   SUM(pnl)        AS pnl,
+                   COUNT(DISTINCT strategy) AS strategies,
+                   MIN(bet_date)   AS first_date,
+                   MAX(bet_date)   AS last_date
+              FROM forward_bets
+             WHERE settled = 1
+             GROUP BY pj
+             ORDER BY pnl DESC
+            """
+        ).fetchall()
+    out = []
+    for r in rows:
+        pj, n, stake, payout, pnl, strategies, fd, ld = r
+        out.append({
+            "pj": pj,
+            "bets_n": n,
+            "stake_total": stake or 0,
+            "payout_total": payout or 0,
+            "pnl_total": pnl or 0,
+            "roi_pct": round(((pnl or 0) / stake * 100.0) if stake else 0, 2),
+            "strategies": strategies,
+            "first_date": fd,
+            "last_date": ld,
+        })
+    return out
+
+
+def forward_recent(limit: int = 20) -> list[dict]:
+    """直近 N 件（未確定含む、新しい順）。"""
+    with connect() as con:
+        rows = con.execute(
+            """
+            SELECT bet_date, pj, strategy, bet_type, combo, stake,
+                   settled, actual_top3, payout, pnl, placed_at, model_version, note
+              FROM forward_bets
+             ORDER BY placed_at DESC
+             LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+    keys = ("bet_date", "pj", "strategy", "bet_type", "combo", "stake",
+            "settled", "actual_top3", "payout", "pnl", "placed_at",
+            "model_version", "note")
+    return [dict(zip(keys, r)) for r in rows]
+
+
 def to_json(obj) -> str:
     return json.dumps(obj, ensure_ascii=False, indent=2)
 

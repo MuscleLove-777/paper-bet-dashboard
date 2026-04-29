@@ -58,6 +58,21 @@ td.chart { width: 320px; }
 .reports a { color: #2a3a55; text-decoration: none; font-weight: 600; }
 .reports a:hover { text-decoration: underline; }
 footer { text-align: center; font-size: 11px; color: #8a7a64; margin-top: 24px; }
+.card.forward {
+  border-left: 4px solid #2a3a55;
+  background: linear-gradient(180deg, #fff 0%, #f3f6fb 100%);
+}
+.card.forward h2 { color: #2a3a55; }
+.card.forward h3.sub {
+  font-size: 13px; color: #44607f; margin: 18px 0 6px;
+  padding-bottom: 4px; border-bottom: 1px dashed #c8d1e0;
+}
+.card.forward .kpi-grid { margin-bottom: 8px; }
+tr.unsettled td { background: #fff8d6; }
+.badge {
+  display: inline-block; background: #d97a1a; color: #fff;
+  padding: 1px 7px; border-radius: 99px; font-size: 11px; font-weight: 700;
+}
 @media (max-width: 700px) {
   td.chart { display: none; }
 }
