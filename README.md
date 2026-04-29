@@ -61,3 +61,27 @@ https://musclelove-777.github.io/paper-bet-dashboard/
 scheduled task:
 - `Paper_Cross_Daily` — 毎日 06:00 / `run_etl.py` + `publish.py`（push まで自動）
 - `Paper_Cross_Weekly` — 月曜 07:00 / `run_etl.py` + `publish.py --weekly`（claude で方針レポ生成）
+- `Forward_Settle_Daily` — 毎日 07:00 / `scripts/auto_settle.py` で `forward_bets` の未確定を自動 settle
+
+## フォワード検証自動化フロー
+
+forward.py + ledger.db の `forward_bets` テーブルを使った日次フォワード検証パイプライン。
+
+```
+[17:30] 045/scripts/auto_live_predict.py        … 大井 R1〜R12 を S5_TRIO_BOX3 で予想 → forward_bets に record
+                ↓
+[06:00] Ooi_Keiba_Daily_Fetch                   … 結果 fetch (NAR公式) → 045/data/ooi.db
+                ↓
+[07:00] 108/scripts/auto_settle.py              … forward_bets 未確定を ooi.db results/payouts から自動 settle
+                ↓
+[06:00] Paper_Cross_Daily（翌日）               … 横断ダッシュボード再生成 → push
+```
+
+サンプル：1日12レース×月20開催 ≒ 月240件積み上がる。`stake=100` 円固定（絶対金額は画面非表示、PnL率のみ表示）。
+
+```bash
+# 手動デバッグ
+python "C:\Users\atsus\000_ClaudeCode\045_大井競馬自動予想\scripts\auto_live_predict.py" --date 2026-04-29 --dry-run
+python scripts/auto_settle.py --dry-run
+python forward.py list --unsettled
+```
