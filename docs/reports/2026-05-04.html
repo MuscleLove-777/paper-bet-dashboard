@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>週次方針レポ 2026-05-04</title>
+<link rel="stylesheet" href="../style.css">
+<style>
+.report { background:#fff; padding:24px; border-radius:12px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.06); }
+.report h1, .report h2, .report h3 { color: #2a3a55; }
+.report h1 { font-size: 22px; }
+.report h2 { font-size: 17px; margin-top: 22px; padding-bottom: 6px; border-bottom: 2px solid #ece4d2;}
+.report h3 { font-size: 14px; margin-top: 16px; }
+.report table { font-size: 13px; }
+.report code { background: #f7f3ed; padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body><div class="wrap">
+<p><a href="../">← ダッシュボードに戻る</a></p>
+<div class="report">
+<h1>📝 週次方針レポ 2026-05-04</h1>
+<h2>⚠️ 異常検出：S8 複利暴走（継続中）</h2>
+
+<p>S8 で **2,504件**の異常ベットを検出。最大 stake が **2.4×10⁹⁶ 円**に到達しており、複利ロジックが完全に発散している。正規集計から除外済みだが、S8 の&quot;正常&quot;220件（stake 2.07億）も初期の複利膨張を含む。**S8 は ROI 評価不能。複利ロジックを修正するか、固定 stake 版に差し替えるまで凍結しろ。**</p>
+
+<p>---</p>
+
+<h2>全体サマリ（S8 除外ベース）</h2>
+
+<p>S8 を除くと実質的な固定 stake（100円）での検証結果が見える。</p>
+
+<table>
+<tr><th>指標</th><th>値</th></tr>
+<tr><td>有効ベット数</td><td>約 12,660件（ooi S1-S7 + S4_autorace）</td></tr>
+<tr><td>ooi S1-S7 累計 PnL</td><td>+464,560 円（stake 1,489,400円 / ROI 31.2%）</td></tr>
+<tr><td>S4_autorace PnL</td><td>+1,108,060 円（stake 9,229,100円 / ROI 12.0%）</td></tr>
+<tr><td>稼働日数</td><td>102日</td></tr>
+</table>
+
+<p>全 PJ プラス。102日間でこの ROI は堅調。</p>
+
+<p>---</p>
+
+<h2>戦略ティアランキング（大井 S1–S7）</h2>
+
+<table>
+<tr><th>Tier</th><th>戦略</th><th>Bets</th><th>Win Rate</th><th>ROI</th><th>判定</th></tr>
+<tr><td>**S**</td><td>S5</td><td>1,027</td><td>4.4%</td><td>**+96.4%**</td><td>一撃型。低的中を高配当で回収。**主力維持**</td></tr>
+<tr><td>**A**</td><td>S1</td><td>1,027</td><td>45.0%</td><td>+64.5%</td><td>安定＋高ROI。**主力維持**</td></tr>
+<tr><td>**A**</td><td>S4</td><td>2,514</td><td>46.8%</td><td>+53.6%</td><td>最多件数で高的中・高ROI。**最も信頼できる軸**</td></tr>
+<tr><td>**B**</td><td>S2</td><td>1,027</td><td>**65.4%**</td><td>+28.5%</td><td>最高的中率だがROI控えめ。**継続、増枠不要**</td></tr>
+<tr><td>**B**</td><td>S6</td><td>4,102</td><td>1.8%</td><td>+22.2%</td><td>大量低的中の穴狙い。4,100件でプラスなので統計的に有意。**継続**</td></tr>
+<tr><td>**C**</td><td>S3</td><td>5,058</td><td>8.6%</td><td>+10.7%</td><td>最大件数だがROI最低。**縮小 or フィルタ精度改善を検討**</td></tr>
+<tr><td>**D**</td><td>S7</td><td>38</td><td>5.3%</td><td>**−70.6%**</td><td>ROI壊滅。ただし38件・1日のみ。**サンプル不足で保留→再検証なければ廃止**</td></tr>
+</table>
+
+<p>---</p>
+
+<h2>S4 オートレース：初動は好感触、ただし即断禁止</h2>
+
+<ul>
+<li>ROI +12.0%、的中率 40.7%、344件 → 数字だけ見れば合格ライン</li>
+<li>**しかしデータは 2026-04-18 の1日分のみ**。1日の偏りで +12% が出ただけの可能性がある</li>
+<li>**最低2週間（5開催以上）回してから評価しろ**。現時点では「有望だが未確定」</li>
+</ul>
+
+<p>---</p>
+
+<h2>Crypto DCA：評価対象外</h2>
+
+<p>BTC/JPY の DCA を 12回（約14,700円）積んでいるが、payout=0（未決済 or 評価未反映）。DCA は短期 ROI で測るものではないので、**3ヶ月後に含み損益を取り込む仕組みを作ってから再評価**。</p>
+
+<p>---</p>
+
+<h2>今週の方針</h2>
+
+<p>1. **S8 を止めろ**。複利暴走が直らない限り集計ノイズにしかならない。固定 stake 100円版の S8&#x27; を別 strategy として切り出して再検証するのが正攻法</p>
+<p>2. **S4・S1・S5 を主力3本柱として維持**。ROI・件数・期間の三拍子が揃っている</p>
+<p>3. **S3 は改善余地を探れ**。5,058件で ROI 10.7% は「薄利多売」。フィルタ条件の見直しで ROI 20%台に上げられないか検証</p>
+<p>4. **S7 は 2週間以内に再テストしなければ廃止**。38件では判断材料にならない</p>
+<p>5. **S4_autorace は黙って回し続けろ**。少なくとも 500件・5開催分のデータが溜まるまで触らない</p>
+<p>6. **forward_bets（S5_TRIO_BOX3）のフォワード検証を継続**。バックテストの S5 ROI +96% がリアルでも再現するか、ここが最大の検証ポイント</p>
+</div>
+</div></body></html>
